@@ -33,4 +33,10 @@ const SignUp = ({ email, setEmail, password, setPassword, isLogin, setIsLogin, h
   )
 }
 
+const styles = StyleSheet.create({
+    authContainer: {
+        paddingTop: 300
+    }
+})
+
 export default SignUp

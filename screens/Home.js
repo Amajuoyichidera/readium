@@ -1,21 +1,22 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import React from 'react'
 
-const Home = () => {
+const Home = ({navigation}) => {
   return (
     <View style={styles.container}>
      {/* background shapes */}
 
-     <View style={[styles.shape, styles.shape1]} />
-     <View style={[styles.shape, styles.shape4]} />
+      {/* Main Content */}
+      <View style={styles.content}>
+        
+      <View style={[styles.shape, styles.shape1]} />
+      <View style={[styles.shape, styles.shape4]} />
       <View style={[styles.shape, styles.shape2]} />
       <View style={[styles.shape, styles.shape3]} />
       <View style={[styles.shape, styles.shape5]} />
 
-      {/* Main Content */}
-      <View style={styles.content}>
         <Text style={styles.title}>All your books in one place on Readium.</Text>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity onPress={() => navigation.navigate('SignUp')} style={styles.button}>
           <Text style={styles.buttonText}>Start</Text>
         </TouchableOpacity>
         <Text style={styles.loginText}>Already have an account?</Text>
@@ -27,7 +28,11 @@ const Home = () => {
 
 const styles = StyleSheet.create({
       container: {
-        marginTop: 90,
+        height: '100%',
+        paddingTop: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#FBF7EF',
       },  
       shape: {
         position: 'absolute',
