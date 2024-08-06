@@ -20,7 +20,7 @@ const Home = ({navigation}) => {
           <Text style={styles.buttonText}>Start</Text>
         </TouchableOpacity>
         <Text style={styles.loginText}>Already have an account?</Text>
-        <Text style={styles.loginLink}>Log in</Text>
+        <Text onPress={() => navigation.navigate('SignUp')} style={styles.loginLink}>Log in</Text>
       </View>
     </View>
   )
@@ -40,13 +40,10 @@ const styles = StyleSheet.create({
         borderRadius: 100,
       },
       shape1: {
-        width: 150,
-        height: 150,
+        width: 180,
+        height: 180,
         top: -210,
-        left: -30,
-        borderRadius: 10,
-        borderBottomRightRadius: 70,
-        borderTopRightRadius: 30
+        left: -80,
       },
       shape2: {
         width: 120,
@@ -91,9 +88,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 80,
         borderRadius: 30,
         marginBottom: 20,
-        width: '80%',
-        marginTop: 60,
-        cursor: 'pointer',
+        width: 300,
+        marginTop: 80,
       },
       buttonText: {
         color: '#fff',
@@ -109,7 +105,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         paddingTop: 10,
         fontWeight: 'bold',
-        color: '#4c3d3d',
+        color: '#3A3967',
       },
 })
 

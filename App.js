@@ -18,8 +18,8 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
 const Stack = createNativeStackNavigator();
+
 const App = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
