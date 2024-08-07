@@ -6,6 +6,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './screens/Home';
 import Authorized from './screens/Authorized';
+import { Provider } from 'react-redux';
+import store from './store';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxYoLN4UVsepj8fSGb2a8Ulbs_VN77q6A",
@@ -57,7 +59,8 @@ const App = () => {
   };
 
   return (
-    <NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
       {user ? (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Authorized">
@@ -73,6 +76,7 @@ const App = () => {
         </Stack.Navigator>
       )}
     </NavigationContainer>
+    </Provider>
   );
 }
 
