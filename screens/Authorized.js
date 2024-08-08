@@ -4,10 +4,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchStory } from '../features/storiesSlice';
 
 const Authorized = ({user, handleAuthentication}) => {
+    
     const stories = useSelector((state) => state.story.stories);
     const status = useSelector((state) => state.story.status);
     const error = useSelector((state) => state.story.error);
     const dispatch = useDispatch();
+
 
     useEffect(() => {
         dispatch(fetchStory());
