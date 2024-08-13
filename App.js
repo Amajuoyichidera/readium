@@ -59,6 +59,10 @@ const App = () => {
   };
 
   return (
+    // <Provider store={store}>
+    //   <Authorized />
+    // </Provider>
+
     <Provider store={store}>
       <NavigationContainer>
       {user ? (

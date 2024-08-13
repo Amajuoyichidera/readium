@@ -6,11 +6,6 @@ export const fetchStory = createAsyncThunk('story/fetchStory', async () => {
     return response.data;
 });
 
-export const fetchStoryDetails = createAsyncThunk('story/fetchStoryDetails', async (id) => {
-   const response = await axios.get(`https://shortstories-api.onrender.com/stories${id}`);
-   return response.data;
-})
-
 const storySlice = createSlice({
     name: 'stories',
     initialState: {
@@ -20,12 +15,15 @@ const storySlice = createSlice({
         selectedStory: null,
     },
     reducers: {
+        selectStory: (state, action) => {
+            state.selectedStory = action.payload
+        },
         clearSelectedStory: (state) => {
             state.selectedStory = null;
         }
     },
     extraReducers: (builders) => {
-        builders.addCase(fetchStory.pending, (state) =>{
+        builders.addCase(fetchStory.pending, (state) => {
             state.status = 'loading';
         }).addCase(fetchStory.fulfilled, (state, action) => {
             state.status = 'success';
@@ -33,17 +31,9 @@ const storySlice = createSlice({
         }).addCase(fetchStory.rejected, (state, action) => {
             state.status = 'failed',
             state.error = action.error.message;
-        }).addCase(fetchStoryDetails.pending, (state) => {
-            state.status = 'loading';
-        }).addCase(fetchStoryDetails.fulfilled, (state, action) => {
-            state.status = 'success';
-            state.selectedStory = action.payload;
-        }).addCase(fetchStoryDetails.rejected, (state, action) => {
-            state.status = 'failed';
-            state.error = action.error.message;
         })
     }
 })
 
-export const { clearSelectedStory } = storySlice.actions
-export default storySlice.reducer
+export const { selectStory, clearSelectedStory } = storySlice.actions
+export default storySlice.reducer;
