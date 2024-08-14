@@ -1,120 +1,184 @@
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Button, StyleSheet, Modal } from 'react-native'
-import React, {useEffect, useState} from 'react';
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Button, StyleSheet, Modal, ScrollView } from 'react-native'
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchStory, selectStory, clearSelectedStory } from '../features/storiesSlice';
 
-const Authorized = ({user, handleAuthentication}) => {
-    
+const Authorized = ({ user, handleAuthentication }) => {
+
     const stories = useSelector((state) => state.story.stories);
     const status = useSelector((state) => state.story.status);
     const error = useSelector((state) => state.story.error);
     const dispatch = useDispatch();
-    const selectedStory = useSelector((state) => state.story.selectedStory)
-    const [modalVisible, setModalVisible] = useState(false)
+    const selectedStory = useSelector((state) => state.story.selectedStory);
+    const [modalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
         dispatch(fetchStory());
-      }, [dispatch]);
+    }, [dispatch]);
 
     const handleStoryDetails = (story) => {
-        dispatch(selectStory(story))
+        dispatch(selectStory(story));
+        setModalVisible(true);
     }
-    
 
     const handleClearStory = () => {
-        dispatch(clearSelectedStory())
+        dispatch(clearSelectedStory());
+        setModalVisible(false);
     }
 
-    if(status === 'loading') {
+    if (status === 'loading') {
         return (
             <View style={styles.loader}>
-                <ActivityIndicator color='black' size='large' />
+                <ActivityIndicator color='#3A3967' size='large' />
             </View>
         )
     }
 
-    if(status === 'failed') {
+    if (status === 'failed') {
         return (
-            <View style={{marginTop: 200}}>
-                <Text>Error: {error}</Text>
+            <View style={{ marginTop: 200, alignItems: 'center' }}>
+                <Text style={styles.errorText}>Error: {error}</Text>
             </View>
         )
     }
 
-  return (
-    <View style={styles.container}>
-      <View>
-        <Text style={{color: 'purple'}}>Readium</Text>
-        <View>
-        <Text>{user.email}</Text>
-        <TouchableOpacity onPress={handleAuthentication}>
-            <Text>Logout</Text>
-        </TouchableOpacity>
+    return (
+        <View style={styles.container}>
+            <View style={styles.top}>
+                <Text style={styles.read}>Readium</Text>
+                <View style={styles.userSection}>
+                    <Text style={styles.userEmail}>{user.email}</Text>
+                    <TouchableOpacity onPress={handleAuthentication}>
+                        <Text style={styles.logoutButton}>Logout</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+
+            <FlatList
+                data={stories}
+                keyExtractor={(item) => item._id.toString()}
+                renderItem={({ item }) => (
+                    <TouchableOpacity style={styles.storyItem} onPress={() => handleStoryDetails(item)}>
+                        <Text style={styles.storyTitle}>{item.title}</Text>
+                        <Text style={styles.storyAuthor}>By: {item.author}</Text>
+                        <Text style={styles.storyMoral}>Moral: {item.moral}</Text>
+                    </TouchableOpacity>
+                )}
+            />
+
+            {selectedStory && (
+                <Modal
+                    visible={modalVisible}
+                    animationType='slide'
+                    onRequestClose={() => setModalVisible(!modalVisible)}>
+                    <ScrollView contentContainerStyle={styles.modalContent}>
+                        <Text style={styles.modalTitle}>{selectedStory.title}</Text>
+                        <Text style={styles.modalAuthor}>By: {selectedStory.author}</Text>
+                        <Text style={styles.modalStory}>{selectedStory.story}</Text>
+                        <Text style={styles.modalMoral}>Moral Lesson: {selectedStory.moral}</Text>
+                        <Button color='#3A3967' title='Close' onPress={handleClearStory} />
+                    </ScrollView>
+                </Modal>
+            )}
         </View>
-
-        <FlatList
-        data={stories}
-        keyExtractor={(item) => item._id.toString()}
-        renderItem={({item}) => {
-            return (
-                <TouchableOpacity onPress={() => handleStoryDetails(item)}>
-                    <Text>Title: {item.title}</Text>
-                    <Text>Author: {item.author}</Text>
-                    <Text>Moral Lesson: {item.moral}</Text>
-                </TouchableOpacity>
-            );
-        }}
-        />
-         
-        {selectedStory && (
-            <Modal
-            animationType='slide'
-            onRequestClose={() => setModalVisible(!modalVisible)}>
-               <View style={{marginTop: 200}}>
-                   <Text>Title: {selectedStory.title}</Text>
-                   <Text>Author: {selectedStory.author}</Text>
-                   <Text>Story: {selectedStory.story}</Text>
-                   <Text>Moral Lesson: {selectedStory.moral}</Text>
-                   <Button title='close' onPress={handleClearStory} />
-               </View>
-            </Modal>
-        )}
-      </View>
-    </View>
-  )
+    )
 }
-
 
 const styles = StyleSheet.create({
     container: {
-    //   flex: 1,
-      padding: 16,
-      backgroundColor: '#FBF7EF'
+        paddingTop: 50,
+        padding: 16,
+        backgroundColor: '#FBF7EF',
+        flex: 1,
     },
-    // loader: {
-    //   flex: 1,
-    //   justifyContent: 'center',
-    //   alignItems: 'center',
-    // },
-    item: {
-      padding: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: '#ccc',
+    loader: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    title: {
-      fontWeight: 'bold',
+    errorText: {
+        color: 'red',
+        fontSize: 18,
     },
-    storyDetails: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      padding: 16,
-      backgroundColor: '#fff',
-      justifyContent: 'center',
-      alignItems: 'center',
+    top: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 20,
     },
-  });
+    read: {
+        color: '#3A3967',
+        fontWeight: 'bold',
+        fontSize: 28,
+    },
+    userSection: {
+        alignItems: 'flex-end',
+    },
+    userEmail: {
+        paddingBottom: 5,
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#3A3967',
+    },
+    logoutButton: {
+        color: 'red',
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    storyItem: {
+        backgroundColor: '#fff',
+        padding: 15,
+        marginBottom: 10,
+        borderRadius: 10,
+        elevation: 2,
+    },
+    storyTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#3A3967',
+        marginBottom: 5,
+    },
+    storyAuthor: {
+        fontSize: 16,
+        color: '#3A3967',
+        marginBottom: 5,
+    },
+    storyMoral: {
+        fontSize: 16,
+        color: '#3A3967',
+    },
+    modalContent: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+        backgroundColor: '#FBF7EF',
+    },
+    modalTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#3A3967',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    modalAuthor: {
+        fontSize: 18,
+        color: '#3A3967',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    modalStory: {
+        fontSize: 16,
+        color: '#6A6A6A',
+        marginBottom: 20,
+        textAlign: 'justify',
+    },
+    modalMoral: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#3A3967',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+});
 
-export default Authorized
+export default Authorized;
