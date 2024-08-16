@@ -31,8 +31,9 @@ const storySlice = createSlice({
             }
         },
         toggleBookmark: (state, action) => {
-            if(state.bookmarks.includes(action.payload)) {
-                state.bookmarks = state.bookmarks.filter(bookmark => bookmark !== action.payload)
+            const myBook = state.bookmarks.find(bookmark => bookmark._id === action.payload._id)
+            if(myBook) {
+                state.bookmarks = state.bookmarks.filter(bookmark => bookmark._id !== action.payload._id)
             } else {
                 state.bookmarks.push(action.payload);
             }
@@ -56,5 +57,5 @@ const storySlice = createSlice({
     }
 })
 
-export const { selectStory, clearSelectedStory, markAsRead, toggleBookmark, setInitialData } = storySlice.actions
+export const { selectStory, clearSelectedStory, markAsRead, toggleBookmark, setInitialData} = storySlice.actions
 export default storySlice.reducer;

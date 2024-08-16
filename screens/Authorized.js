@@ -14,7 +14,7 @@ const Authorized = ({ user, handleAuthentication }) => {
     const [isEnabled, setIsEnabled] = useState(false);
     const readStories = useSelector(state => state.story.readStories);
     const bookmarks = useSelector((state) => state.story.bookmarks);
-
+    const [bookmarkedData, setBookmarkedData] = useState(null);
 
     const toggleSwitch = () => {
         setIsEnabled(prev => !prev)
@@ -44,7 +44,7 @@ const Authorized = ({ user, handleAuthentication }) => {
     }
 
     const handleBookmark = (story) => {
-        dispatch(toggleBookmark(story._id))
+        dispatch(toggleBookmark(story))
     }
 
     if (status === 'loading') {
@@ -73,6 +73,7 @@ const Authorized = ({ user, handleAuthentication }) => {
                 <Text style={[styles.read, myColor]}>Readium</Text>
                 <View style={styles.userSection}>
                     <Text style={[styles.userEmail, myColor]}>{user.email}</Text>
+                    <Text style={[styles.userEmail, myColor]}>Bookmarks</Text>
                     <TouchableOpacity onPress={handleAuthentication}>
                         <Text style={styles.logoutButton}>Logout</Text>
                     </TouchableOpacity>
@@ -90,7 +91,7 @@ const Authorized = ({ user, handleAuthentication }) => {
                 keyExtractor={(item) => item._id.toString()}
                 renderItem={({ item }) => {
                     const isRead = readStories.includes(item._id);
-                    const isBookmarked = bookmarks.includes(item._id);
+                    const isBookmarked = bookmarks.find(bookmark => bookmark._id === item._id)
 
                     return (
                         <TouchableOpacity style={[styles.storyItem, {backgroundColor: isEnabled ? '#E0E0E0' : '#fff' }]} onPress={() => handleStoryDetails(item)}>
@@ -106,7 +107,7 @@ const Authorized = ({ user, handleAuthentication }) => {
                     );
                 }}
             />
-
+            
             {selectedStory && (
                 <Modal
                     visible={modalVisible}
@@ -121,6 +122,25 @@ const Authorized = ({ user, handleAuthentication }) => {
                     </ScrollView>
                 </Modal>
             )}
+
+            {bookmarks.map(bookmark => (
+                <View key={bookmark._id}>
+                    <TouchableOpacity onPress={() => setBookmarkedData(bookmark._id)}>
+                        <Text>{bookmark.title}</Text>
+                    </TouchableOpacity>
+                    {bookmarkedData === bookmark._id && (
+                        <Modal animationType='slide' onRequestClose={() => setBookmarkedData(null)}>
+                            <ScrollView>
+                                <Text>{bookmark.title}</Text>
+                                <Text>{bookmark.author}</Text>
+                                <Text>{bookmark.story}</Text>
+                                <Text>{bookmark.moral}</Text>
+                                <Button title='close' onPress={() => setBookmarkedData(null)} />
+                            </ScrollView>
+                        </Modal>
+                    )}
+                </View>
+            ))}
         </View>
     )
 }
@@ -185,9 +205,6 @@ const styles = StyleSheet.create({
         color: '#3A3967',
     },
     modalContent: {
-        // flex: 1,
-        // justifyContent: 'center',
-        // alignItems: 'center',
         padding: 20,
         paddingTop: 70,
         paddingBottom: 50,
@@ -227,7 +244,7 @@ const styles = StyleSheet.create({
         color: 'gray',
     },
     bookmark: {
-        fontSize: 16,
+        fontSize: 20,
         color: 'blue',
         marginTop: 8,
     },
