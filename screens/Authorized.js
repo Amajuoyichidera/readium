@@ -5,6 +5,7 @@ import { fetchStory, selectStory, clearSelectedStory, markAsRead, toggleBookmark
 import { getData } from '../storageUtilis';
 
 const Authorized = ({ user, handleAuthentication }) => {
+    
     const stories = useSelector((state) => state.story.stories);
     const status = useSelector((state) => state.story.status);
     const error = useSelector((state) => state.story.error);
@@ -14,7 +15,6 @@ const Authorized = ({ user, handleAuthentication }) => {
     const [isEnabled, setIsEnabled] = useState(false);
     const readStories = useSelector(state => state.story.readStories);
     const bookmarks = useSelector((state) => state.story.bookmarks);
-    const [bookmarkedData, setBookmarkedData] = useState(null);
 
     const toggleSwitch = () => {
         setIsEnabled(prev => !prev)
@@ -72,11 +72,6 @@ const Authorized = ({ user, handleAuthentication }) => {
             <View style={styles.top}>
                 <Text style={[styles.read, myColor]}>Readium</Text>
                 <View style={styles.userSection}>
-                    <Text style={[styles.userEmail, myColor]}>{user.email}</Text>
-                    <Text style={[styles.userEmail, myColor]}>Bookmarks</Text>
-                    <TouchableOpacity onPress={handleAuthentication}>
-                        <Text style={styles.logoutButton}>Logout</Text>
-                    </TouchableOpacity>
                     <Switch
                     trackColor={{false: '#121212', true: '#FBF7EF'}}
                     thumbColor={isEnabled ? '#121212' : '#f4f3f4'}
@@ -123,24 +118,6 @@ const Authorized = ({ user, handleAuthentication }) => {
                 </Modal>
             )}
 
-            {bookmarks.map(bookmark => (
-                <View key={bookmark._id}>
-                    <TouchableOpacity onPress={() => setBookmarkedData(bookmark._id)}>
-                        <Text>{bookmark.title}</Text>
-                    </TouchableOpacity>
-                    {bookmarkedData === bookmark._id && (
-                        <Modal animationType='slide' onRequestClose={() => setBookmarkedData(null)}>
-                            <ScrollView>
-                                <Text>{bookmark.title}</Text>
-                                <Text>{bookmark.author}</Text>
-                                <Text>{bookmark.story}</Text>
-                                <Text>{bookmark.moral}</Text>
-                                <Button title='close' onPress={() => setBookmarkedData(null)} />
-                            </ScrollView>
-                        </Modal>
-                    )}
-                </View>
-            ))}
         </View>
     )
 }
@@ -177,12 +154,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '500',
     },
-    logoutButton: {
-        color: 'red',
-        fontSize: 16,
-        fontWeight: '500',
-        paddingBottom: 10,
-    },
     storyItem: {
         padding: 15,
         marginBottom: 10,
@@ -203,6 +174,7 @@ const styles = StyleSheet.create({
     storyMoral: {
         fontSize: 16,
         color: '#3A3967',
+        fontStyle: 'italic',
     },
     modalContent: {
         padding: 20,
@@ -238,6 +210,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         textTransform: 'capitalize',
         lineHeight: 25,
+        fontStyle: 'italic',
     },
     readText: {
         textDecorationLine: 'line-through',

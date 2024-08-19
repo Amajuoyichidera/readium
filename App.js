@@ -8,6 +8,9 @@ import Home from './screens/Home';
 import Authorized from './screens/Authorized';
 import { Provider } from 'react-redux';
 import store from './store';
+import Profile from './screens/Profile';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxYoLN4UVsepj8fSGb2a8Ulbs_VN77q6A",
@@ -21,6 +24,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 const App = () => {
   const [email, setEmail] = useState('');
@@ -58,19 +62,33 @@ const App = () => {
     }
   };
 
-  return (
-    // <Provider store={store}>
-    //   <Authorized />
-    // </Provider>
 
+  function AuthorizedTabs() {
+    return (
+      <Tab.Navigator screenOptions={{headerShown: false}}>
+        <Tab.Screen 
+         name='Home'
+         options={{ tabBarIcon: ({ color, size}) => (
+          <Ionicons name='home' color={color} size={size} />
+         )}}>
+          {props => <Authorized {...props} user={user} handleAuthentication={handleAuthentication}  />}
+         </Tab.Screen>
+         <Tab.Screen 
+          name='Profile'
+          options={{ tabBarIcon: ({ color, size}) => (
+            <Ionicons name='person' color={color} size={size} />
+          )}}>
+            {props => <Profile {...props} user={user} handleAuthentication={handleAuthentication} />}
+          </Tab.Screen>
+      </Tab.Navigator>
+    )
+  }
+
+  return (
     <Provider store={store}>
       <NavigationContainer>
       {user ? (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Authorized">
-            {props => <Authorized {...props} user={user} handleAuthentication={handleAuthentication} />}
-          </Stack.Screen>
-        </Stack.Navigator>
+        <AuthorizedTabs />
       ) : (
         <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
           <Stack.Screen name="Home" component={Home} />
