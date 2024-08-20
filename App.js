@@ -11,6 +11,7 @@ import store from './store';
 import Profile from './screens/Profile';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { Alert } from 'react-native';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxYoLN4UVsepj8fSGb2a8Ulbs_VN77q6A",
@@ -31,6 +32,7 @@ const App = () => {
   const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
   const [isLogin, setIsLogin] = useState(true);
+  const [isEnabled, setIsEnabled] = useState(false);
 
   const auth = getAuth(app);
 
@@ -57,8 +59,7 @@ const App = () => {
         }
       }
     } catch (error) {
-      console.error('Authentication error:', error.code, error.message);
-      alert(`Error: ${error.message}`);
+      Alert.alert(`Error: ${error.message}`);
     }
   };
 
@@ -71,7 +72,7 @@ const App = () => {
          options={{ tabBarIcon: ({ color, size}) => (
           <Ionicons name='home' color={color} size={size} />
          )}}>
-          {props => <Authorized {...props} user={user} handleAuthentication={handleAuthentication}  />}
+          {props => <Authorized {...props} />}
          </Tab.Screen>
          <Tab.Screen 
           name='Profile'

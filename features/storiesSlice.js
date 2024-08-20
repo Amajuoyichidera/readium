@@ -16,6 +16,7 @@ const storySlice = createSlice({
         selectedStory: null,
         readStories: [],
         bookmarks: [],
+        isEnabled: false,
     },
     reducers: {
         selectStory: (state, action) => {
@@ -27,7 +28,7 @@ const storySlice = createSlice({
         markAsRead: (state, action) => {
             if (!state.readStories.includes(action.payload)) {
                 state.readStories.push(action.payload);
-                storeData('readStory', state.readStories)
+                // storeData('readStory', state.readStories)
             }
         },
         toggleBookmark: (state, action) => {
@@ -43,6 +44,9 @@ const storySlice = createSlice({
             state.readStories = action.payload.readStories || [];
             state.bookmarks = action.payload.bookmarks || [];
         },
+        toggleDarkMode: (state) => {
+            state.isEnabled = !state.isEnabled;
+        }
     },
     extraReducers: (builders) => {
         builders.addCase(fetchStory.pending, (state) => {
@@ -57,5 +61,5 @@ const storySlice = createSlice({
     }
 })
 
-export const { selectStory, clearSelectedStory, markAsRead, toggleBookmark, setInitialData} = storySlice.actions
+export const { selectStory, clearSelectedStory, markAsRead, toggleBookmark, setInitialData, toggleDarkMode} = storySlice.actions
 export default storySlice.reducer;

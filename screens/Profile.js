@@ -4,15 +4,20 @@ import { useSelector } from 'react-redux';
 
 const Profile = ({ user, handleAuthentication }) => {
   const bookmarks = useSelector((state) => state.story.bookmarks);
+  const isEnabled = useSelector(state => state.story.isEnabled);
   const [selectedBookmark, setSelectedBookmark] = useState(null);
+
 
   const validBookmarks = bookmarks.filter(
     bookmark => bookmark && bookmark._id && bookmark.title
   );
 
+  const myBackground = {backgroundColor: isEnabled ? '#121212' : '#FBF7EF'}
+  const myColor = {color: isEnabled ? '#E0E0E0' : '#333'}
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Profile</Text>
+    <View style={[styles.container, myBackground]}>
+      <Text style={[styles.header, myColor]}>Profile</Text>
       <View style={styles.userInfo}>
         <Text style={styles.userEmail}>User: {user.email}</Text>
         <TouchableOpacity onPress={handleAuthentication}>
@@ -20,7 +25,7 @@ const Profile = ({ user, handleAuthentication }) => {
         </TouchableOpacity>
       </View>
       
-      <Text style={styles.bookmarksHeader}>Bookmarks</Text>
+      <Text style={[styles.bookmarksHeader, myColor]}>Bookmarks</Text>
       
       {validBookmarks.length > 0 ? (
         validBookmarks.map((bookmark) => (
@@ -34,7 +39,7 @@ const Profile = ({ user, handleAuthentication }) => {
             </View>
         ))
       ) : (
-        <Text style={styles.noBookmarksText}>No Bookmarked Items</Text>
+        <Text style={[styles.noBookmarksText, myColor]}>No Bookmarked Story</Text>
       )}
 
       {selectedBookmark && (
@@ -43,7 +48,7 @@ const Profile = ({ user, handleAuthentication }) => {
           visible={!!selectedBookmark}
           onRequestClose={() => setSelectedBookmark(null)}
         >
-          <View style={styles.modalContainer}>
+          <View style={[styles.modalContainer, myBackground]}>
             <ScrollView style={styles.modalContent}>
               <Text style={styles.modalTitle}>{selectedBookmark.title}</Text>
               <Text style={styles.modalAuthor}>{selectedBookmark.author}</Text>
@@ -62,13 +67,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#FBF7EF',
     paddingTop: 70,
   },
   header: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -96,7 +99,6 @@ const styles = StyleSheet.create({
   bookmarksHeader: {
     fontSize: 22,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 10,
   },
   bookmarkContainer: {
@@ -113,28 +115,20 @@ const styles = StyleSheet.create({
   },
   noBookmarksText: {
     fontSize: 18,
-    color: '#888',
     textAlign: 'center',
     marginTop: 20,
-  },
-  invalidBookmark: {
-    fontSize: 16,
-    color: '#ff5252',
-    textAlign: 'center',
-    marginVertical: 10,
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
     backgroundColor: '#fff',
     borderRadius: 15,
     padding: 20,
     width: '90%',
-    maxHeight: '80%',
+    maxHeight: '90%',
   },
   modalTitle: {
     fontSize: 24,
@@ -151,6 +145,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#444',
     marginBottom: 10,
+    lineHeight: 40,
   },
   modalMoral: {
     fontSize: 16,

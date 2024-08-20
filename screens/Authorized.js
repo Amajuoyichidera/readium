@@ -1,10 +1,13 @@
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Button, StyleSheet, Modal, ScrollView, Switch } from 'react-native'
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Share, StyleSheet, Modal, ScrollView, Switch } from 'react-native'
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchStory, selectStory, clearSelectedStory, markAsRead, toggleBookmark, setInitialData } from '../features/storiesSlice';
+import { fetchStory, selectStory, clearSelectedStory, markAsRead, toggleBookmark, setInitialData, toggleDarkMode } from '../features/storiesSlice';
 import { getData } from '../storageUtilis';
+import * as Speech from 'expo-speech';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const Authorized = ({ user, handleAuthentication }) => {
+
+const Authorized = () => {
     
     const stories = useSelector((state) => state.story.stories);
     const status = useSelector((state) => state.story.status);
@@ -12,21 +15,25 @@ const Authorized = ({ user, handleAuthentication }) => {
     const dispatch = useDispatch();
     const selectedStory = useSelector((state) => state.story.selectedStory);
     const [modalVisible, setModalVisible] = useState(false);
-    const [isEnabled, setIsEnabled] = useState(false);
     const readStories = useSelector(state => state.story.readStories);
     const bookmarks = useSelector((state) => state.story.bookmarks);
+    const isEnabled = useSelector(state => state.story.isEnabled);
+
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [speechPaused, setSpeechPaused] = useState(false);
 
     const toggleSwitch = () => {
-        setIsEnabled(prev => !prev)
+        dispatch(toggleDarkMode())
     }
 
     useEffect(() => {
         dispatch(fetchStory());
 
         const loadInitialData = async () => {
-            const readStoriesData = await getData('readStory');
+            // const readStoriesData = await getData('readStory');
             const bookmarksData = await getData('bookmarks');
-            dispatch(setInitialData({ readStories: readStoriesData, bookmarks: bookmarksData }))
+            // dispatch(setInitialData({ readStories: readStoriesData, bookmarks: bookmarksData }))
+            dispatch(setInitialData({ bookmarks: bookmarksData }))
         };
 
         loadInitialData();
@@ -41,11 +48,24 @@ const Authorized = ({ user, handleAuthentication }) => {
     const handleClearStory = () => {
         dispatch(clearSelectedStory());
         setModalVisible(!modalVisible);
+        Speech.stop();
+        setIsSpeaking(false);
     }
 
     const handleBookmark = (story) => {
         dispatch(toggleBookmark(story))
     }
+
+    const handleShareStory = async () => {
+        try {
+            await Share.share({
+                message: `Check out this story: "Title: ${selectedStory.title}" by ${selectedStory.author}. \n\nStory: ${selectedStory.story}\n\n Moral: ${selectedStory.moral}`,
+                title: selectedStory.title,
+            });
+        } catch (error) {
+            console.error('Error sharing story:', error);
+        }
+    };
 
     if (status === 'loading') {
         return (
@@ -61,6 +81,30 @@ const Authorized = ({ user, handleAuthentication }) => {
                 <Text style={styles.errorText}>Error: {error}</Text>
             </View>
         )
+    }
+
+    const handleSpeak = () => {
+        if (speechPaused) {
+            setSpeechPaused(false);
+            Speech.resume();
+        } else {
+            const textToSpeak = `Title, ${selectedStory.title},  Author, ${selectedStory.author},   Story, ${selectedStory.story},  moral, ${selectedStory.moral}`;
+            Speech.speak(textToSpeak, {
+                onDone: () => setIsSpeaking(false),
+                onStopped: () => setIsSpeaking(false),
+                onError: () => setIsSpeaking(false),
+                pitch: 0.70,
+                rate: 0.75,
+            });
+            setIsSpeaking(true);
+        }
+    }
+
+    const handlePause = () => {
+        if (isSpeaking) {
+            Speech.pause();
+            setSpeechPaused(true);
+        }
     }
 
     const myColor = {color: isEnabled ? '#E0E0E0' : '#3A3967'}
@@ -108,19 +152,37 @@ const Authorized = ({ user, handleAuthentication }) => {
                     visible={modalVisible}
                     animationType='slide'
                     onRequestClose={() => setModalVisible(!modalVisible)}>
-                    <ScrollView contentContainerStyle={[styles.modalContent, myBackground]}>
-                        <Text style={[styles.modalTitle, myColor2]}>{selectedStory.title}</Text>
+                    <View style={[myBackground, {height: '100%'}]}>
+                    <ScrollView contentContainerStyle={[styles.modalContent]}>
+                    <Text style={[styles.modalTitle, myColor2]}>{selectedStory.title}</Text>
                         <Text style={[styles.modalAuthor, myColor2]}>By: {selectedStory.author}</Text>
                         <Text style={[styles.modalStory, {color: isEnabled ? '#fff' : '#6A6A6A'}]}>{selectedStory.story}</Text>
                         <Text style={[styles.modalMoral, myColor2]}>Moral Lesson: {selectedStory.moral}</Text>
-                        <Button color='red' title='Close' onPress={handleClearStory} />
+
+
+                        <View style={styles.controls}>
+                            <TouchableOpacity onPress={handleSpeak} style={styles.iconButton}>
+                                <Icon name={isSpeaking && !speechPaused ? 'pause-circle-filled' : 'play-arrow'} size={30} color="#1e90ff" />
+                            </TouchableOpacity>
+                            {isSpeaking && <TouchableOpacity onPress={handlePause} style={styles.iconButton}>
+                                <Icon name="pause-circle-filled" size={30} color="orange" />
+                            </TouchableOpacity>}
+                            <TouchableOpacity onPress={handleShareStory} style={styles.iconButton}>
+                                <Icon name="share" size={30} color="#4CAF50" />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={handleClearStory} style={styles.iconButton}>
+                                <Icon name="close" size={30} color="red" />
+                            </TouchableOpacity>
+                        </View>
                     </ScrollView>
+                    </View>
                 </Modal>
             )}
 
         </View>
     )
 }
+
 
 const styles = StyleSheet.create({
     container: {
@@ -180,7 +242,7 @@ const styles = StyleSheet.create({
         padding: 20,
         paddingTop: 70,
         paddingBottom: 50,
-        height: 'auto',
+        // height: 'auto',
     },
     modalTitle: {
         fontSize: 24,
@@ -221,6 +283,14 @@ const styles = StyleSheet.create({
         color: 'blue',
         marginTop: 8,
     },
+    controls: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 20,
+    },
+    iconButton: {
+        marginHorizontal: 10,
+    }
 });
 
 export default Authorized;
